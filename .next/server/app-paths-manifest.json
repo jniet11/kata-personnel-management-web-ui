@@ -1,0 +1,8 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/create-user/page": "app/create-user/page.js",
+  "/team-management/page": "app/team-management/page.js",
+  "/access-request/page": "app/access-request/page.js",
+  "/computer-assignment/page": "app/computer-assignment/page.js"
+}
