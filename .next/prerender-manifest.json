@@ -1,6 +1,30 @@
 {
   "version": 4,
   "routes": {
+    "/team-management": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "Next-Action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/team-management",
+      "dataRoute": "/team-management.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
     "/favicon.ico": {
       "initialHeaders": {
         "cache-control": "public, max-age=0, must-revalidate",
@@ -30,7 +54,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/team-management": {
+    "/access-request": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -43,8 +67,8 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/team-management",
-      "dataRoute": "/team-management.rsc",
+      "srcRoute": "/access-request",
+      "dataRoute": "/access-request.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -69,30 +93,6 @@
       "initialRevalidateSeconds": false,
       "srcRoute": "/computer-assignment",
       "dataRoute": "/computer-assignment.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
-    "/access-request": {
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "Next-Action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": false,
-      "srcRoute": "/access-request",
-      "dataRoute": "/access-request.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -130,8 +130,8 @@
   "dynamicRoutes": {},
   "notFoundRoutes": [],
   "preview": {
-    "previewModeId": "a98f1ad78bb4dc6ce3f5e442195c9cb6",
-    "previewModeSigningKey": "2b51a8faf22f84bf81970ac11d01b3730b9623ff8bb10efed200502cfd91c202",
-    "previewModeEncryptionKey": "435cc21d875ce2cf85146d973e92f1baacf62bed036c7b31aa1ba08a83fd7932"
+    "previewModeId": "c73af93980b279d06643f6f97998e055",
+    "previewModeSigningKey": "f25434c24ba0d5dfa2d9edb3dd1af01572d8b90ecc9a8b44840f130972eb0739",
+    "previewModeEncryptionKey": "8674ac203962c60284f8ed0991bbae8bffd5681cd62271f1d09456767430e17e"
   }
 }

@@ -5,7 +5,7 @@ export default function ComputerAssignment() {
   const router = useRouter();
 
   return (
-    <div className="bg-white p-6 md:p-8 rounded-xl shadow-xl w-full max-w-2xl">
+    <div className="bg-white p-6 md:p-8 rounded-xl shadow-xl w-full max-w-2xl mx-auto my-8">
       <div className="flex items-center mb-6">
         <div className="bg-gray-700 p-3 rounded-full mr-4">
           <img className="size-12 shrink-0" src="/img/computer-svgrepo-com.svg" />

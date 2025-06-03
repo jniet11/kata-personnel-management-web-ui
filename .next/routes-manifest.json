@@ -13,7 +13,24 @@
     }
   ],
   "headers": [],
-  "dynamicRoutes": [],
+  "dynamicRoutes": [
+    {
+      "page": "/edit-access-request/[id]",
+      "regex": "^/edit\\-access\\-request/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/edit\\-access\\-request/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/edit-user/[id]",
+      "regex": "^/edit\\-user/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/edit\\-user/(?<nxtPid>[^/]+?)(?:/)?$"
+    }
+  ],
   "staticRoutes": [
     {
       "page": "/_not-found",

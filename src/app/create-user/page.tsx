@@ -48,9 +48,9 @@ export default function CreateUser() {
   };
 
   return (
-    <div className="bg-white p-6 md:p-8 rounded-xl shadow-xl w-full max-w-2xl">
+    <div className="bg-white p-6 md:p-8 rounded-xl shadow-xl w-full max-w-2xl mx-auto my-8">
       <div className="flex items-center mb-6">
-        <div className="bg-blue-500 p-3 rounded-full mr-4">
+        <div className="bg-blue-600 p-3 rounded-full mr-4">
           <Image
             className="shrink-0"
             src="/img/the-medal-svgrepo-com.svg"
@@ -147,7 +147,7 @@ export default function CreateUser() {
             </button>
             <button
               type="submit"
-              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition duration-200"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition duration-200"
             >
               Registrar Usuario
             </button>

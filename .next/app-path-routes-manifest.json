@@ -1,8 +1,10 @@
 {
-  "/_not-found/page": "/_not-found",
   "/favicon.ico/route": "/favicon.ico",
-  "/create-user/page": "/create-user",
+  "/_not-found/page": "/_not-found",
+  "/computer-assignment/page": "/computer-assignment",
   "/team-management/page": "/team-management",
+  "/edit-user/[id]/page": "/edit-user/[id]",
+  "/create-user/page": "/create-user",
   "/access-request/page": "/access-request",
-  "/computer-assignment/page": "/computer-assignment"
+  "/edit-access-request/[id]/page": "/edit-access-request/[id]"
 }
