@@ -10,6 +10,13 @@ interface ApprovedUser {
   status: string; 
 }
 
+interface ComputerData {
+  id: string | number;
+  serial_number: string;
+  model: string | null;
+  is_assigned: boolean;
+}
+
 export default function ComputerAssignment() {
   const router = useRouter();
   const [approvedUsers, setApprovedUsers] = useState<ApprovedUser[]>([]);
@@ -21,6 +28,10 @@ export default function ComputerAssignment() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [usersError, setUsersError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+
+  const [availableComputers, setAvailableComputers] = useState<ComputerData[]>([]);
+  const [isLoadingComputers, setIsLoadingComputers] = useState(true);
+  const [computersError, setComputersError] = useState<string | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("jwtToken");
@@ -61,7 +72,36 @@ export default function ComputerAssignment() {
       }
     };
     fetchApprovedUsers();
-  }, [router]);
+
+    const fetchAvailableComputers = async () => {
+      setIsLoadingComputers(true);
+      setComputersError(null);
+      const currentToken = localStorage.getItem("jwtToken");
+      if (!currentToken) {
+        setComputersError("Sesión expirada. Por favor, inicie sesión de nuevo.");
+        // Consider router.push("/login") here as well
+        setIsLoadingComputers(false);
+        return;
+      }
+      try {
+        const response = await axios.get<{ success: boolean, data: ComputerData[] }>(
+          "http://localhost:4000/personnel-management/get-computers",
+          { headers: { Authorization: `Bearer ${currentToken}` } }
+        );
+        if (response.data.success) {
+          setAvailableComputers(response.data.data);
+        } else {
+          setComputersError("No se pudieron cargar los computadores disponibles (API).");
+        }
+      } catch (error) {
+        console.error("Error fetching available computers:", error);
+        setComputersError("Error de red al cargar los computadores disponibles.");
+      } finally {
+        setIsLoadingComputers(false);
+      }
+    };
+    fetchAvailableComputers();
+  }, [router]); 
 
   const handleUserChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedUserId(event.target.value);
@@ -240,6 +280,62 @@ export default function ComputerAssignment() {
           </div>
         </div>
       </form>
+
+      <div className="mt-12 bg-gray-50 p-4 md:p-6 rounded-lg shadow">
+        <h2 className="text-xl md:text-2xl font-semibold text-gray-700 mb-6">
+          Computadores Disponibles para Asignar
+        </h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left table-auto">
+            <thead className="bg-gray-100">
+              <tr className="border-b-2 border-gray-200">
+                <th className="py-3 px-4 text-gray-600 font-semibold text-sm">
+                  ID
+                </th>
+                <th className="py-3 px-4 text-gray-600 font-semibold text-sm">
+                  Número de Serie
+                </th>
+                <th className="py-3 px-4 text-gray-600 font-semibold text-sm">
+                  Modelo
+                </th>
+                <th className="py-3 px-4 text-gray-600 font-semibold text-sm">
+                  ¿Asignado?
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoadingComputers ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-4 text-gray-500">
+                    Cargando computadores...
+                  </td>
+                </tr>
+              ) : computersError ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-4 text-red-500">
+                    {computersError}
+                  </td>
+                </tr>
+              ) : availableComputers.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-4 text-gray-500">
+                    No hay computadores disponibles registrados.
+                  </td>
+                </tr>
+              ) : (
+                availableComputers.map((computer) => (
+                  <tr key={computer.id} className={`border-b border-gray-200 hover:bg-gray-100 transition-colors ${computer.is_assigned ? 'bg-red-50 text-gray-500' : ''}`}>
+                    <td className="py-3 px-4">{computer.id}</td>
+                    <td className="py-3 px-4">{computer.serial_number}</td>
+                    <td className="py-3 px-4">{computer.model || 'N/A'}</td>
+                    <td className="py-3 px-4">{computer.is_assigned ? "Sí" : "No"}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

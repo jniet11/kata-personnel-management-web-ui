@@ -12,24 +12,8 @@
       "static/chunks/4bd1b696-52a6696c08e3276c.js",
       "static/chunks/684-a95541a4543ae4cd.js",
       "static/chunks/main-app-8084c0bc738ff03e.js",
-      "static/css/dd534c62c534be8c.css",
+      "static/css/21c71736bcaba119.css",
       "static/chunks/app/layout-99f7242bb6bc9bcc.js"
-    ],
-    "/computer-assignment/page": [
-      "static/chunks/webpack-29ebadaebe2fcb3f.js",
-      "static/chunks/4bd1b696-52a6696c08e3276c.js",
-      "static/chunks/684-a95541a4543ae4cd.js",
-      "static/chunks/main-app-8084c0bc738ff03e.js",
-      "static/chunks/659-7d8c154157cc01be.js",
-      "static/chunks/app/computer-assignment/page-ecc49be0a7ab7c65.js"
-    ],
-    "/create-user/page": [
-      "static/chunks/webpack-29ebadaebe2fcb3f.js",
-      "static/chunks/4bd1b696-52a6696c08e3276c.js",
-      "static/chunks/684-a95541a4543ae4cd.js",
-      "static/chunks/main-app-8084c0bc738ff03e.js",
-      "static/chunks/659-7d8c154157cc01be.js",
-      "static/chunks/app/create-user/page-811a2c5163e9f0f2.js"
     ],
     "/access-request/page": [
       "static/chunks/webpack-29ebadaebe2fcb3f.js",
@@ -39,21 +23,21 @@
       "static/chunks/659-7d8c154157cc01be.js",
       "static/chunks/app/access-request/page-e2111da4f728e6cc.js"
     ],
-    "/edit-computer-assignment/[id]/page": [
+    "/computer-assignment/page": [
       "static/chunks/webpack-29ebadaebe2fcb3f.js",
       "static/chunks/4bd1b696-52a6696c08e3276c.js",
       "static/chunks/684-a95541a4543ae4cd.js",
       "static/chunks/main-app-8084c0bc738ff03e.js",
       "static/chunks/659-7d8c154157cc01be.js",
-      "static/chunks/app/edit-computer-assignment/[id]/page-57d73fe7dd8a1e02.js"
+      "static/chunks/app/computer-assignment/page-bc4d73eb301a8b51.js"
     ],
-    "/edit-access-request/[id]/page": [
+    "/create-user/page": [
       "static/chunks/webpack-29ebadaebe2fcb3f.js",
       "static/chunks/4bd1b696-52a6696c08e3276c.js",
       "static/chunks/684-a95541a4543ae4cd.js",
       "static/chunks/main-app-8084c0bc738ff03e.js",
       "static/chunks/659-7d8c154157cc01be.js",
-      "static/chunks/app/edit-access-request/[id]/page-d8b26e3c0766fed5.js"
+      "static/chunks/app/create-user/page-811a2c5163e9f0f2.js"
     ],
     "/edit-user/[id]/page": [
       "static/chunks/webpack-29ebadaebe2fcb3f.js",
@@ -63,6 +47,14 @@
       "static/chunks/659-7d8c154157cc01be.js",
       "static/chunks/app/edit-user/[id]/page-0a2828cf6a9026ac.js"
     ],
+    "/team-management/page": [
+      "static/chunks/webpack-29ebadaebe2fcb3f.js",
+      "static/chunks/4bd1b696-52a6696c08e3276c.js",
+      "static/chunks/684-a95541a4543ae4cd.js",
+      "static/chunks/main-app-8084c0bc738ff03e.js",
+      "static/chunks/659-7d8c154157cc01be.js",
+      "static/chunks/app/team-management/page-5e03dc1d8b804607.js"
+    ],
     "/login/page": [
       "static/chunks/webpack-29ebadaebe2fcb3f.js",
       "static/chunks/4bd1b696-52a6696c08e3276c.js",
@@ -71,13 +63,21 @@
       "static/chunks/659-7d8c154157cc01be.js",
       "static/chunks/app/login/page-757d7d30f43df532.js"
     ],
-    "/team-management/page": [
+    "/edit-computer-assignment/[id]/page": [
       "static/chunks/webpack-29ebadaebe2fcb3f.js",
       "static/chunks/4bd1b696-52a6696c08e3276c.js",
       "static/chunks/684-a95541a4543ae4cd.js",
       "static/chunks/main-app-8084c0bc738ff03e.js",
       "static/chunks/659-7d8c154157cc01be.js",
-      "static/chunks/app/team-management/page-5e03dc1d8b804607.js"
+      "static/chunks/app/edit-computer-assignment/[id]/page-8f1eefed20b50de5.js"
+    ],
+    "/edit-access-request/[id]/page": [
+      "static/chunks/webpack-29ebadaebe2fcb3f.js",
+      "static/chunks/4bd1b696-52a6696c08e3276c.js",
+      "static/chunks/684-a95541a4543ae4cd.js",
+      "static/chunks/main-app-8084c0bc738ff03e.js",
+      "static/chunks/659-7d8c154157cc01be.js",
+      "static/chunks/app/edit-access-request/[id]/page-d8b26e3c0766fed5.js"
     ]
   }
 }

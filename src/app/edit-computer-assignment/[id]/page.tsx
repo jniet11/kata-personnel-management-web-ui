@@ -23,6 +23,13 @@ interface ApprovedUser {
   status: string;
 }
 
+interface ComputerData {
+  id: string | number;
+  serial_number: string;
+  model: string | null;
+  is_assigned: boolean;
+}
+
 export default function EditComputerAssignmentPage() {
   const router = useRouter();
   const params = useParams();
@@ -40,6 +47,10 @@ export default function EditComputerAssignmentPage() {
   const [error, setError] = useState<string | null>(null);
   const [usersError, setUsersError] = useState<string | null>(null);
 
+  const [availableComputers, setAvailableComputers] = useState<ComputerData[]>([]);
+  const [isLoadingComputers, setIsLoadingComputers] = useState(true);
+  const [computersError, setComputersError] = useState<string | null>(null);
+
   useEffect(() => {
     const token = localStorage.getItem("jwtToken");
     if (!token) {
@@ -53,6 +64,8 @@ export default function EditComputerAssignmentPage() {
     setEditedAssignedAt("");
     setError(null);
     setUsersError(null);
+    setComputersError(null);
+    setIsLoadingComputers(true);
     setIsFetchingData(true);
 
     if (assignmentId && assignmentId !== "undefined") {
@@ -74,9 +87,13 @@ export default function EditComputerAssignmentPage() {
         "http://localhost:4000/personnel-management/get-users",
         authHeaders
       );
+      const fetchAllComputersList = axios.get<{ success: boolean, data: ComputerData[] }>(
+        "http://localhost:4000/personnel-management/get-computers",
+        authHeaders
+      );
 
-      Promise.all([fetchAssignmentDetails, fetchApprovedUsersList])
-        .then(([assignmentDetailsResponse, approvedUsersResponse]) => {
+      Promise.all([fetchAssignmentDetails, fetchApprovedUsersList, fetchAllComputersList])
+        .then(([assignmentDetailsResponse, approvedUsersResponse, allComputersResponse]) => {
           if (
             assignmentDetailsResponse.status === 401 ||
             approvedUsersResponse.status === 401
@@ -118,6 +135,16 @@ export default function EditComputerAssignmentPage() {
               "No hay usuarios aprobados disponibles para seleccionar."
             );
           }
+
+          if (allComputersResponse.status === 401) {
+             // Ya manejado arriba, pero por si acaso
+            return;
+          }
+          if (allComputersResponse.data.success) {
+            setAvailableComputers(allComputersResponse.data.data);
+          } else {
+            setComputersError("No se pudieron cargar los computadores disponibles (API).");
+          }
         })
         .catch((err) => {
           console.error("Error fetching data:", err);
@@ -134,11 +161,14 @@ export default function EditComputerAssignmentPage() {
               setUsersError(
                 "No se pudieron cargar la lista de usuarios aprobados."
               );
+            } else if (err.config?.url?.includes("get-computers")) {
+              setComputersError("Error de red al cargar los computadores disponibles.");
             }
           }
         })
         .finally(() => {
           setIsFetchingData(false);
+          setIsLoadingComputers(false); // Asegúrate de que este se establezca en false aquí también
         });
     } else {
       setError(
@@ -147,6 +177,7 @@ export default function EditComputerAssignmentPage() {
           : "ID de asignación no válido o no proporcionado."
       );
       setIsFetchingData(false);
+      setIsLoadingComputers(false); // Y aquí si no hay assignmentId
     }
   }, [assignmentId, router]);
 
@@ -353,6 +384,62 @@ export default function EditComputerAssignmentPage() {
           </div>
         </div>
       </form>
+
+      <div className="mt-12 bg-gray-50 p-4 md:p-6 rounded-lg shadow">
+        <h2 className="text-xl md:text-2xl font-semibold text-gray-700 mb-6">
+          Listado General de Computadores
+        </h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left table-auto">
+            <thead className="bg-gray-100">
+              <tr className="border-b-2 border-gray-200">
+                <th className="py-3 px-4 text-gray-600 font-semibold text-sm">
+                  ID
+                </th>
+                <th className="py-3 px-4 text-gray-600 font-semibold text-sm">
+                  Número de Serie
+                </th>
+                <th className="py-3 px-4 text-gray-600 font-semibold text-sm">
+                  Modelo
+                </th>
+                <th className="py-3 px-4 text-gray-600 font-semibold text-sm">
+                  ¿Asignado?
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoadingComputers ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-4 text-gray-500">
+                    Cargando computadores...
+                  </td>
+                </tr>
+              ) : computersError ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-4 text-red-500">
+                    {computersError}
+                  </td>
+                </tr>
+              ) : availableComputers.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-4 text-gray-500">
+                    No hay computadores registrados.
+                  </td>
+                </tr>
+              ) : (
+                availableComputers.map((computer) => (
+                  <tr key={`comp-${computer.id}`} className={`border-b border-gray-200 hover:bg-gray-100 transition-colors ${computer.is_assigned ? 'bg-red-50 text-gray-500' : ''}`}>
+                    <td className="py-3 px-4">{computer.id}</td>
+                    <td className="py-3 px-4">{computer.serial_number}</td>
+                    <td className="py-3 px-4">{computer.model || 'N/A'}</td>
+                    <td className="py-3 px-4">{computer.is_assigned ? "Sí" : "No"}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

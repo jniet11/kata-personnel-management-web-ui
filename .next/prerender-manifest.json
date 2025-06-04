@@ -1,30 +1,6 @@
 {
   "version": 4,
   "routes": {
-    "/team-management": {
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "Next-Action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": false,
-      "srcRoute": "/team-management",
-      "dataRoute": "/team-management.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
     "/favicon.ico": {
       "initialHeaders": {
         "cache-control": "public, max-age=0, must-revalidate",
@@ -45,6 +21,30 @@
       "initialRevalidateSeconds": false,
       "srcRoute": "/favicon.ico",
       "dataRoute": null,
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
+    "/computer-assignment": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "Next-Action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/computer-assignment",
+      "dataRoute": "/computer-assignment.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -102,6 +102,30 @@
         "x-next-revalidate-tag-token"
       ]
     },
+    "/team-management": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "Next-Action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/team-management",
+      "dataRoute": "/team-management.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
     "/create-user": {
       "experimentalBypassFor": [
         {
@@ -125,37 +149,13 @@
         "x-next-revalidated-tags",
         "x-next-revalidate-tag-token"
       ]
-    },
-    "/computer-assignment": {
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "Next-Action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": false,
-      "srcRoute": "/computer-assignment",
-      "dataRoute": "/computer-assignment.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
     }
   },
   "dynamicRoutes": {},
   "notFoundRoutes": [],
   "preview": {
-    "previewModeId": "926e921137296fd9cd890f09bccc1d50",
-    "previewModeSigningKey": "40d5bc658e51fc361ad69835fb0c075e5deecda13cdd55dde4ae17b83b168fb0",
-    "previewModeEncryptionKey": "1b2c22c9acd40e91e1503c3a62e32308025e25d20f808b7b08a7e8386a76074e"
+    "previewModeId": "62c978df02154c396beca77eaee39fa2",
+    "previewModeSigningKey": "0b9358acfd3a147bd4b46027f072893253ef06941a1d62898885bdae90279ad8",
+    "previewModeEncryptionKey": "3a87b9d4e78f8da91d2eafc9276f554678a73ba3abf274fcf4f94bd55f193f95"
   }
 }
