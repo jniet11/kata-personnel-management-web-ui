@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
+import Image from "next/image";
 import axios from "axios";
 
 interface UserFromApi {
@@ -20,23 +21,46 @@ export default function AccessRequest() {
   const [accessTypes, setAccessTypes] = useState<string[]>([]);
 
   useEffect(() => {
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
     const fetchApprovedUsers = async () => {
       setIsLoadingUsers(true);
       setUsersError(null);
+      const currentToken = localStorage.getItem("jwtToken");
+      if (!currentToken) {
+        setUsersError("Sesión expirada. Por favor, inicie sesión de nuevo.");
+        router.push("/login");
+        setIsLoadingUsers(false);
+        return;
+      }
+
       try {
-        const response = await axios.get<UserFromApi[]>("http://localhost:4000/personnel-management/get-users");
+        const response = await axios.get<UserFromApi[]>("http://localhost:4000/personnel-management/get-users", {
+          headers: {
+            Authorization: `Bearer ${currentToken}`,
+          },
+        });
         const filteredUsers = response.data.filter(user => user.status.toLowerCase() === "aprobado");
         setApprovedUsers(filteredUsers);
       } catch (error) {
         console.error("Error fetching users:", error);
-        setUsersError("No se pudieron cargar los usuarios. Inténtelo más tarde.");
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          setUsersError("Sesión expirada o no autorizado. Redirigiendo al login.");
+          router.push("/login");
+        } else {
+          setUsersError("No se pudieron cargar los usuarios. Inténtelo más tarde.");
+        }
       } finally {
         setIsLoadingUsers(false);
       }
     };
 
     fetchApprovedUsers();
-  }, []);
+  }, [router]);
 
   const handleUserChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedUserId(event.target.value);
@@ -65,6 +89,14 @@ export default function AccessRequest() {
     setIsSubmitting(true);
     const accessTypeString = accessTypes.join(", ");
 
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      setFormError("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+      router.push("/login");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       console.log('Los datos enviados son: ', {
         user_id: selectedUserId,
@@ -73,15 +105,22 @@ export default function AccessRequest() {
       await axios.post("http://localhost:4000/personnel-management/create-access-request", {
         user_id: selectedUserId,
         access_type: accessTypeString,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       alert("Solicitud de acceso creada exitosamente!");
       router.push("/team-management");
     } catch (error) {
       console.error("Error creating access request:", error);
-      if (axios.isAxiosError(error) && error.response) {
-        setFormError(error.response.data?.error || "Error al crear la solicitud.");
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        setFormError("Tu sesión ha expirado o no tienes permiso. Redirigiendo al login.");
+        router.push("/login");
+      } else if (axios.isAxiosError(error) && error.response) {
+        setFormError(error.response.data?.error || error.response.data?.message || "Error al crear la solicitud.");
       } else {
-        setFormError("Error de red o al procesar la solicitud.");
+        setFormError("Error de red o al procesar la solicitud. Inténtelo más tarde.");
       }
     } finally {
       setIsSubmitting(false);
@@ -92,7 +131,13 @@ export default function AccessRequest() {
     <div className="bg-white p-6 md:p-8 rounded-xl shadow-xl w-full max-w-2xl mx-auto my-8">
       <div className="flex items-center mb-6">
         <div className="bg-blue-600 p-3 rounded-full mr-4">
-          <img className="size-12 shrink-0" src="/img/airplane-svgrepo-com.svg" />
+          <Image
+            className="shrink-0"
+            src="/img/airplane-svgrepo-com.svg"
+            alt="Solicitud de Accesos Icono"
+            width={48}
+            height={48}
+          />
         </div>
         <h1 className="text-2xl font-bold text-gray-700">
           Solicitud de Accesos
