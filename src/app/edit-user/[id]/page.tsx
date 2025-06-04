@@ -5,7 +5,6 @@ import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import axios from "axios";
 
-// Interfaz para los datos del formulario que usa el estado local
 interface UserFormData {
   nombre: string;
   correo: string;
@@ -13,17 +12,14 @@ interface UserFormData {
   role: string;
 }
 
-// Interfaz para los datos del usuario tal como vienen de la API
 interface ApiUserData {
   id: string | number;
-  name: string; // Asumiendo que la API devuelve 'name'
-  email: string; // Asumiendo que la API devuelve 'email'
-  department: string; // Asumiendo que la API devuelve 'department'
-  role: string; // Asumiendo que la API devuelve 'role'
+  name: string;
+  email: string;
+  department: string;
+  role: string;
   area: string;
-  // Incluye otros campos que la API pueda devolver y que necesites
 }
-
 
 const initialFormData: UserFormData = {
   nombre: "",
@@ -35,7 +31,7 @@ const initialFormData: UserFormData = {
 export default function EditUserCreationRequestPage() {
   const router = useRouter();
   const params = useParams();
-  const requestId = params.id as string; // ID de la solicitud/usuario a editar
+  const requestId = params.id as string;
 
   const [formData, setFormData] = useState<UserFormData>(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
@@ -47,7 +43,7 @@ export default function EditUserCreationRequestPage() {
       setIsFetchingData(true);
       setError(null);
       axios
-        .get<ApiUserData[]>( // Esperamos un array de ApiUserData
+        .get<ApiUserData[]>(
           `http://localhost:4000/personnel-management/get-users`
         )
         .then((response) => {
@@ -56,12 +52,11 @@ export default function EditUserCreationRequestPage() {
           console.log("User to Edit:", userToEdit);
 
           if (userToEdit) {
-            // Mapeamos los campos de la API a los campos del formulario
             setFormData({
-              nombre: userToEdit.name, // Usamos userToEdit.name
-              correo: userToEdit.email, // Usamos userToEdit.email
-              area: userToEdit.area, // Usamos userToEdit.department
-              role: userToEdit.role, // Usamos userToEdit.role
+              nombre: userToEdit.name,
+              correo: userToEdit.email,
+              area: userToEdit.area,
+              role: userToEdit.role,
             });
           } else {
             console.error(`Usuario con ID ${requestId} no encontrado en la lista.`);
@@ -98,15 +93,12 @@ export default function EditUserCreationRequestPage() {
     setError(null);
 
     const API_ENDPOINT_UPDATE = `http://localhost:4000/personnel-management/update-user/${requestId}`;
-
-    // Mapear los datos del formulario a la estructura que espera la API
     const payloadForApi: Omit<ApiUserData, 'id'> = {
       name: formData.nombre,
       email: formData.correo,
       department: formData.area,
       role: formData.role,
       area: formData.area,
-      // Asegúrate de que estos campos coincidan con lo que espera tu API para la actualización
     };
 
     try {

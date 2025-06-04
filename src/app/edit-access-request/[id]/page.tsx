@@ -6,39 +6,38 @@ import Image from "next/image";
 import axios from 'axios';
 
 interface AccessRequestEditData {
-  id: string | number; // Include ID as it might be needed for context, though not edited in form
-  user_id: string | number; // The ID of the user associated with the request
-  user_name: string; // Name of the user (for display/initial value)
+  id: string | number;
+  user_id: string | number;
+  user_name: string;
   access_type: string;
   status: string;
-  user_type: string; // Assuming backend will provide this field
+  user_type: string;
   created_at: string;
 }
 
-// Interface for approved users list from API
 interface ApprovedUser {
   id: string | number;
   name: string;
-  status: string; // To filter for 'aprobado'
+  status: string;
 }
 
-const ALL_ACCESS_TYPES = ["GitHub", "Grafana", "AWS", "Confluence", "Figma", "JFROG"]; // Available access options
-const USER_TYPES = ["PM", "UX", "QA", "Scrum Master", "Developer", "BA", "DevOps"]; // Available user types
+const ALL_ACCESS_TYPES = ["GitHub", "Grafana", "AWS", "Confluence", "Figma", "JFROG"];
+const USER_TYPES = ["PM", "UX", "QA", "Scrum Master", "Developer", "BA", "DevOps"];
 
 export default function EditAccessRequestPage() {
   const router = useRouter();
   const params = useParams();
   const requestId = params.id as string;
 
-  const [requestData, setRequestData] = useState<AccessRequestEditData | null>(null); // Store full request data for display
-  const [approvedUsers, setApprovedUsers] = useState<ApprovedUser[]>([]); // List of users for the select dropdown
-  const [selectedUserId, setSelectedUserId] = useState<string>(""); // State for the selected user ID
-  const [selectedUserType, setSelectedUserType] = useState<string>(""); // State for the selected user type
-  const [editedAccessTypes, setEditedAccessTypes] = useState<string[]>([]); // Estado para los checkboxes editables
+  const [requestData, setRequestData] = useState<AccessRequestEditData | null>(null);
+  const [approvedUsers, setApprovedUsers] = useState<ApprovedUser[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
+  const [selectedUserType, setSelectedUserType] = useState<string>("");
+  const [editedAccessTypes, setEditedAccessTypes] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isFetchingData, setIsFetchingData] = useState(true); // Combined fetching state
+  const [isFetchingData, setIsFetchingData] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [usersError, setUsersError] = useState<string | null>(null); // Error for fetching users
+  const [usersError, setUsersError] = useState<string | null>(null);
 
   useEffect(() => {
     if (requestId) {
@@ -60,11 +59,9 @@ export default function EditAccessRequestPage() {
           } else {
             setError(requestDetailsResponse.data.error || "No se pudo cargar la solicitud.");
           }
-
-          // Process approved users
           const filteredUsers = approvedUsersResponse.data.filter(user => user.status.toLowerCase() === "aprobado");
           setApprovedUsers(filteredUsers);
-          if (filteredUsers.length === 0 && !usersError) { // Set error if no approved users found, but no network error
+          if (filteredUsers.length === 0 && !usersError) {
             setUsersError("No hay usuarios aprobados disponibles para seleccionar.");
           }
 
@@ -72,7 +69,6 @@ export default function EditAccessRequestPage() {
         .catch(err => {
           console.error("Error fetching data:", err);
           setError("Error al cargar los datos. Por favor, inténtelo más tarde.");
-          // Specific error for users list if that part failed
           if (err.config?.url?.includes('get-users') && !usersError) {
             setUsersError("No se pudieron cargar la lista de usuarios aprobados.");
           }
@@ -101,7 +97,7 @@ export default function EditAccessRequestPage() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!requestData) return; // Ensure request data is loaded
+    if (!requestData) return;
     if (!selectedUserId) {
       setError("Por favor, seleccione un usuario.");
       return;
@@ -143,7 +139,6 @@ export default function EditAccessRequestPage() {
   if (error && !requestData && !isFetchingData) return <div className="container mx-auto p-6 text-center text-red-500">{error}</div>;
   if (!requestData && !isFetchingData) return <div className="container mx-auto p-6"><p className="text-center text-gray-600">Solicitud no encontrada.</p></div>;
 
-
   return (
     <div className="bg-white p-6 md:p-8 rounded-xl shadow-xl w-full max-w-2xl mx-auto my-8">
       <div className="flex items-center mb-6">
@@ -152,14 +147,12 @@ export default function EditAccessRequestPage() {
         </div>
         <h1 className="text-2xl font-bold text-gray-700">Editar Solicitud de Acceso</h1>
       </div>
-      {/* Display read-only fields */}
       {requestData && (
         <>
           <p className="text-gray-600 text-sm mb-2">Estado Actual: <span className="font-semibold">{requestData.status}</span></p>
           <p className="text-gray-600 text-sm mb-6">Fecha Solicitud: <span className="font-semibold">{new Date(requestData.created_at).toLocaleDateString()}</span></p>
         </>
       )}
-
 
       <form onSubmit={handleSubmit}>
         <div className="space-y-6">
@@ -170,7 +163,7 @@ export default function EditAccessRequestPage() {
             >
               Nombre del Usuario
             </label>
-            {usersError && !isFetchingData && approvedUsers.length === 0 ? ( // Show usersError only if not fetching and no users
+            {usersError && !isFetchingData && approvedUsers.length === 0 ? (
               <p className="mt-1 text-sm text-red-500">{usersError}</p>
             ) : (
             <select

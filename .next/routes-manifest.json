@@ -23,6 +23,14 @@
       "namedRegex": "^/edit\\-access\\-request/(?<nxtPid>[^/]+?)(?:/)?$"
     },
     {
+      "page": "/edit-computer-assignment/[id]",
+      "regex": "^/edit\\-computer\\-assignment/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/edit\\-computer\\-assignment/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
       "page": "/edit-user/[id]",
       "regex": "^/edit\\-user/([^/]+?)(?:/)?$",
       "routeKeys": {

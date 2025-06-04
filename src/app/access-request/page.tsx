@@ -3,13 +3,10 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import axios from "axios";
 
-// Interfaz para los datos de usuario que esperamos de la API
-// Similar a la interfaz RecentRequest en team-management/page.tsx
 interface UserFromApi {
   id: string | number;
   name: string;
   status: string;
-  // Podrías añadir más campos si son relevantes y vienen de la API
 }
 
 export default function AccessRequest() {
@@ -20,7 +17,7 @@ export default function AccessRequest() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [usersError, setUsersError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
-  const [accessTypes, setAccessTypes] = useState<string[]>([]); // Para los checkboxes
+  const [accessTypes, setAccessTypes] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchApprovedUsers = async () => {
