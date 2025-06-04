@@ -139,7 +139,7 @@ export default function TeamManagement() {
                 created_at: rawReq.assigned_at,
               })
           );
-          setComputerAssignmentRequests(mappedData);          
+          setComputerAssignmentRequests(mappedData);
         } else {
           console.error("API for computer assignments returned success:false");
           if (!error)
