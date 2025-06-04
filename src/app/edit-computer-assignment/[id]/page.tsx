@@ -41,6 +41,12 @@ export default function EditComputerAssignmentPage() {
   const [usersError, setUsersError] = useState<string | null>(null);
 
   useEffect(() => {
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
     setAssignmentData(null);
     setSelectedUserId("");
     setEditedComputerSerialNumber("");
@@ -50,19 +56,36 @@ export default function EditComputerAssignmentPage() {
     setIsFetchingData(true);
 
     if (assignmentId && assignmentId !== "undefined") {
+      const authHeaders = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
       const fetchAssignmentDetails = axios.get<{
         success: boolean;
         data?: ComputerAssignmentEditData;
         error?: string;
       }>(
-        `http://localhost:4000/personnel-management/get-assignment-by-id/${assignmentId}`
+        `http://localhost:4000/personnel-management/get-assignment-by-id/${assignmentId}`,
+        authHeaders
       );
       const fetchApprovedUsersList = axios.get<ApprovedUser[]>(
-        "http://localhost:4000/personnel-management/get-users"
+        "http://localhost:4000/personnel-management/get-users",
+        authHeaders
       );
 
       Promise.all([fetchAssignmentDetails, fetchApprovedUsersList])
         .then(([assignmentDetailsResponse, approvedUsersResponse]) => {
+          if (
+            assignmentDetailsResponse.status === 401 ||
+            approvedUsersResponse.status === 401
+          ) {
+            alert("Sesión expirada o no autorizado. Redirigiendo al login.");
+            router.push("/login");
+            return;
+          }
+
           if (
             assignmentDetailsResponse.data.success &&
             assignmentDetailsResponse.data.data
@@ -98,17 +121,20 @@ export default function EditComputerAssignmentPage() {
         })
         .catch((err) => {
           console.error("Error fetching data:", err);
-          setError(
-            "Error al cargar los datos. Por favor, inténtelo más tarde."
-          );
-          if (
-            axios.isAxiosError(err) &&
-            err.config?.url?.includes("get-users") &&
-            !usersError
-          ) {
-            setUsersError(
-              "No se pudieron cargar la lista de usuarios aprobados."
+          if (axios.isAxiosError(err) && err.response?.status === 401) {
+            alert("Sesión expirada o no autorizado. Redirigiendo al login.");
+            router.push("/login");
+          } else {
+            setError(
+              "Error al cargar los datos. Por favor, inténtelo más tarde."
             );
+            if (err.config?.url?.includes("get-assignment-by-id")) {
+              setError("No se pudo cargar la asignación.");
+            } else if (err.config?.url?.includes("get-users")) {
+              setUsersError(
+                "No se pudieron cargar la lista de usuarios aprobados."
+              );
+            }
           }
         })
         .finally(() => {
@@ -122,7 +148,7 @@ export default function EditComputerAssignmentPage() {
       );
       setIsFetchingData(false);
     }
-  }, [assignmentId]);
+  }, [assignmentId, router]);
 
   const handleUserChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedUserId(event.target.value);
@@ -151,6 +177,15 @@ export default function EditComputerAssignmentPage() {
     }
     setIsLoading(true);
     setError(null);
+
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+      router.push("/login");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       await axios.put(
         `http://localhost:4000/personnel-management/update-assignment/${assignmentId}`,
@@ -158,16 +193,22 @@ export default function EditComputerAssignmentPage() {
           user_id: selectedUserId,
           computer_serial_number: editedComputerSerialNumber,
           assigned_at: editedAssignedAt,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
       alert("Asignación actualizada exitosamente!");
       router.push("/team-management");
     } catch (err) {
       console.error("Error updating assignment:", err);
-      if (axios.isAxiosError(err) && err.response) {
-        setError(
-          err.response.data?.error || "Error al actualizar la asignación."
-        );
+      if (axios.isAxiosError(err) && err.response?.status === 401) {
+        alert("Tu sesión ha expirado o no tienes permiso. Redirigiendo al login.");
+        router.push("/login");
+      } else if (axios.isAxiosError(err) && err.response) {
+        setError(err.response.data?.error || err.response.data?.message || "Error al actualizar la asignación.");
       } else {
         setError("Error de red o al procesar la solicitud de actualización.");
       }

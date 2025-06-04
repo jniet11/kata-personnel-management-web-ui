@@ -2,9 +2,16 @@
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import axios from "axios";
+import { useEffect } from "react";
 
 export default function CreateUser() {
   const router = useRouter();
+  useEffect(() => {
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      router.push("/login");
+    }
+  }, [router]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -16,16 +23,32 @@ export default function CreateUser() {
       rol: formData.get("rol"),
     };
 
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+      router.push("/login");
+      return;
+    }
+
     console.log('La data enviada es:', userData);
 
     const API_ENDPOINT =
       "http://localhost:4000/personnel-management/create-user";
 
     try {
-      await axios.post(API_ENDPOINT, userData);
+      await axios.post(API_ENDPOINT, userData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       alert("Usuario registrado exitosamente!");
       router.push("/team-management");
     } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        alert("Tu sesión ha expirado o no tienes permiso. Redirigiendo al login.");
+        router.push("/login");
+        return;
+      }
       if (axios.isAxiosError(error) && error.response) {
         console.error(
           "Error al registrar el usuario:",
@@ -39,7 +62,6 @@ export default function CreateUser() {
         );
       } else {
         console.error("Error de red o al procesar la solicitud:", error);
-        alert("Usuario registrado exitosamente!");
         alert(
           "Error de red o al procesar la solicitud. Por favor, inténtelo de nuevo."
         );
