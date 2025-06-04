@@ -2,11 +2,11 @@
   "/_not-found/page": "app/_not-found/page.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
   "/computer-assignment/page": "app/computer-assignment/page.js",
-  "/edit-access-request/[id]/page": "app/edit-access-request/[id]/page.js",
-  "/team-management/page": "app/team-management/page.js",
-  "/edit-user/[id]/page": "app/edit-user/[id]/page.js",
-  "/edit-computer-assignment/[id]/page": "app/edit-computer-assignment/[id]/page.js",
-  "/access-request/page": "app/access-request/page.js",
   "/create-user/page": "app/create-user/page.js",
-  "/login/page": "app/login/page.js"
+  "/access-request/page": "app/access-request/page.js",
+  "/edit-computer-assignment/[id]/page": "app/edit-computer-assignment/[id]/page.js",
+  "/edit-access-request/[id]/page": "app/edit-access-request/[id]/page.js",
+  "/edit-user/[id]/page": "app/edit-user/[id]/page.js",
+  "/login/page": "app/login/page.js",
+  "/team-management/page": "app/team-management/page.js"
 }

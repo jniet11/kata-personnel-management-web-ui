@@ -58,12 +58,29 @@ export default function TeamManagement() {
     useState(true);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    const getAuthHeaders = () => {
+      const currentToken = localStorage.getItem("jwtToken");
+      if (!currentToken) {
+        router.push("/login");
+        throw new Error("Token no encontrado, redirigiendo a login.");
+      }
+      return { Authorization: `Bearer ${currentToken}` };
+    };
+
     const fetchUserCreationRequests = async () => {
       setIsLoadingUserCreations(true);
       setError(null);
       try {
+        const headers = getAuthHeaders();
         const response = await axios.get<UserCreationRequest[]>(
-          "http://localhost:4000/personnel-management/get-users"
+          "http://localhost:4000/personnel-management/get-users",
+          { headers }
         );
         const mappedData = response.data.map((req) => ({
           ...req,
@@ -72,9 +89,16 @@ export default function TeamManagement() {
         setUserCreationRequests(mappedData);
       } catch (err) {
         console.error("Error fetching user creation requests:", err);
-        setError(
-          "No se pudieron cargar las solicitudes de creación de usuarios."
-        );
+        if (err instanceof Error && err.message === "Token no encontrado, redirigiendo a login.") return;
+        if (axios.isAxiosError(err)) {
+          if (err.response?.status === 401) {
+            router.push("/login");
+          } else {
+            setError("No se pudieron cargar las solicitudes de creación de usuarios.");
+          }
+        } else {
+          setError("Ocurrió un error inesperado al cargar las solicitudes de creación de usuarios.");
+        }
       } finally {
         setIsLoadingUserCreations(false);
       }
@@ -83,10 +107,12 @@ export default function TeamManagement() {
     const fetchAccessRequestsData = async () => {
       setIsLoadingAccessRequests(true);
       try {
+        const headers = getAuthHeaders();
         const response = await axios.get<{
           success: boolean;
           data: AccessRequestData[];
-        }>("http://localhost:4000/personnel-management/get-access-requests");
+        }>("http://localhost:4000/personnel-management/get-access-requests",
+        { headers });
         if (response.data.success) {
           const mappedData: AccessRequestData[] = response.data.data.map(
             (req) => ({
@@ -98,12 +124,20 @@ export default function TeamManagement() {
         } else {
           console.error("API for access requests returned success:false");
           if (!error)
-            setError("No se pudieron cargar las solicitudes de acceso.");
+            setError("No se pudieron cargar las solicitudes de acceso (API).");
         }
       } catch (err) {
         console.error("Error fetching access requests:", err);
-        if (!error)
-          setError("Error de red al cargar las solicitudes de acceso.");
+        if (err instanceof Error && err.message === "Token no encontrado, redirigiendo a login.") return;
+        if (axios.isAxiosError(err)) {
+          if (err.response?.status === 401) {
+            router.push("/login");
+          } else {
+            if (!error) setError("Error de red al cargar las solicitudes de acceso.");
+          }
+        } else {
+          if (!error) setError("Ocurrió un error inesperado al cargar las solicitudes de acceso.");
+        }
       } finally {
         setIsLoadingAccessRequests(false);
       }
@@ -112,10 +146,12 @@ export default function TeamManagement() {
     const fetchComputerAssignmentRequests = async () => {
       setIsLoadingComputerAssignments(true);
       try {
+        const headers = getAuthHeaders();
         const response = await axios.get<{
           success: boolean;
           data: RawComputerAssignmentData[];
-        }>("http://localhost:4000/personnel-management/get-assignments");
+        }>("http://localhost:4000/personnel-management/get-assignments",
+        { headers });
         console.log(
           "La respuesta del la consulta a los computadores es: ",
           response
@@ -128,7 +164,7 @@ export default function TeamManagement() {
 
           const mappedData: ComputerAssignmentRequestData[] = validAssignments.map(
             (rawReq) => ({
-                id: rawReq.id!, // Usamos '!' porque ya filtramos null/undefined
+                id: rawReq.id!,
                 user_id: rawReq.user_id,
                 user_name: rawReq.user_name || "Usuario Desconocido",
                 computer_details: rawReq.computer_serial
@@ -143,12 +179,20 @@ export default function TeamManagement() {
         } else {
           console.error("API for computer assignments returned success:false");
           if (!error)
-            setError("No se pudieron cargar las asignaciones de computadores.");
+            setError("No se pudieron cargar las asignaciones de computadores (API).");
         }
       } catch (err) {
         console.error("Error fetching computer assignments:", err);
-        if (!error)
-          setError("Error de red al cargar las asignaciones de computadores.");
+        if (err instanceof Error && err.message === "Token no encontrado, redirigiendo a login.") return;
+        if (axios.isAxiosError(err)) {
+          if (err.response?.status === 401) {
+            router.push("/login");
+          } else {
+            if (!error) setError("Error de red al cargar las asignaciones de computadores.");
+          }
+        } else {
+          if (!error) setError("Ocurrió un error inesperado al cargar las asignaciones de computadores.");
+        }
       } finally {
         setIsLoadingComputerAssignments(false);
       }
@@ -157,7 +201,7 @@ export default function TeamManagement() {
     fetchUserCreationRequests();
     fetchAccessRequestsData();
     fetchComputerAssignmentRequests();
-  }, []);
+  }, [router, error]);
 
   const handleDeleteRequest = async (
     requestId: string | number,
@@ -224,8 +268,19 @@ export default function TeamManagement() {
         `¿Estás seguro de que quieres eliminar "${itemName}" (${itemTypeDescription})?`
       )
     ) {
+      const token = localStorage.getItem("jwtToken");
+      if (!token) {
+        alert("Sesión expirada. Por favor, inicia sesión de nuevo.");
+        router.push("/login");
+        return;
+      }
+
       try {
-        await axios.delete(endpointUrl);
+        await axios.delete(endpointUrl, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         alert(successMsg);
         if (requestType === "userCreation") {
           setUserCreationRequests((prevRequests) =>
@@ -243,12 +298,13 @@ export default function TeamManagement() {
       } catch (err) {
         console.error(`Error al eliminar ${itemTypeDescription}:`, err);
         let errorMsg = `Error de red o al procesar la solicitud de eliminación para ${itemTypeDescription}.`;
+        if (axios.isAxiosError(err) && err.response?.status === 401) {
+          alert("Tu sesión ha expirado o no tienes permiso. Redirigiendo al login.");
+          router.push("/login");
+          return;
+        }
         if (axios.isAxiosError(err) && err.response) {
-          errorMsg = `Error al eliminar: ${
-            err.response.data?.error ||
-            err.response.data?.message ||
-            err.message
-          }`;
+          errorMsg = `Error al eliminar: ${err.response.data?.error || err.response.data?.message || err.message}`;
         }
         alert(errorMsg);
       }

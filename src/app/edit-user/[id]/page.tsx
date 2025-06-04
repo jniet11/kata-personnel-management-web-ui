@@ -39,12 +39,23 @@ export default function EditUserCreationRequestPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
     if (requestId) {
       setIsFetchingData(true);
       setError(null);
       axios
         .get<ApiUserData[]>(
-          `http://localhost:4000/personnel-management/get-users`
+          `http://localhost:4000/personnel-management/get-users`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         )
         .then((response) => {
           const users = response.data;
@@ -65,9 +76,14 @@ export default function EditUserCreationRequestPage() {
         })
         .catch((err) => {
           console.error("Error fetching user data for edit:", err);
-          setError(
-            "No se pudieron cargar los datos del usuario para editar. Por favor, inténtelo más tarde."
-          );
+          if (axios.isAxiosError(err) && err.response?.status === 401) {
+            alert("Sesión expirada o no autorizado. Redirigiendo al login.");
+            router.push("/login");
+          } else {
+            setError(
+              "No se pudieron cargar los datos del usuario para editar. Por favor, inténtelo más tarde."
+            );
+          }
         })
         .finally(() => {
           setIsFetchingData(false);
@@ -76,7 +92,7 @@ export default function EditUserCreationRequestPage() {
       setError("ID de solicitud no proporcionado.");
       setIsFetchingData(false);
     }
-  }, [requestId]);
+  }, [requestId, router]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -92,6 +108,13 @@ export default function EditUserCreationRequestPage() {
     setIsLoading(true);
     setError(null);
 
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+      router.push("/login");
+      return;
+    }
+
     const API_ENDPOINT_UPDATE = `http://localhost:4000/personnel-management/update-user/${requestId}`;
     const payloadForApi: Omit<ApiUserData, 'id'> = {
       name: formData.nombre,
@@ -102,13 +125,22 @@ export default function EditUserCreationRequestPage() {
     };
 
     try {
-      await axios.put(API_ENDPOINT_UPDATE, payloadForApi);
+      await axios.put(API_ENDPOINT_UPDATE, payloadForApi, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       alert("Usuario actualizado exitosamente!");
       router.push("/team-management");
     } catch (err) {
       console.error("Error updating user:", err);
       let errorMessage =
         "Error de red o al procesar la solicitud de actualización.";
+      if (axios.isAxiosError(err) && err.response?.status === 401) {
+        alert("Tu sesión ha expirado o no tienes permiso. Redirigiendo al login.");
+        router.push("/login");
+        return;
+      }
       if (axios.isAxiosError(err) && err.response) {
         errorMessage =
           err.response.data?.message || "Error al actualizar el usuario.";
@@ -119,12 +151,21 @@ export default function EditUserCreationRequestPage() {
     }
   };
 
-  if (isFetchingData) {
+  if (isFetchingData && !error) {
     return (
       <div className="container mx-auto p-6">
         <p className="text-center text-gray-600">
           Cargando datos para edición...
         </p>
+      </div>
+    );
+  }
+
+  if (error && !isFetchingData) {
+    return (
+      <div className="container mx-auto p-6">
+        <p className="text-center text-red-500">{error}</p>
+        <button onClick={() => router.push('/team-management')} className="mt-4 block mx-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg">Volver</button>
       </div>
     );
   }
