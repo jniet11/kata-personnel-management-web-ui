@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+:root {
+  --background: #000000; /* Lavanda muy claro para el fondo en modo claro */
+  --foreground: #826a93; /* Púrpura oscuro para el texto en modo claro */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #826a93; /* Púrpura oscuro para el fondo en modo oscuro */
+    --foreground: #000000; /* Lavanda claro para el texto en modo oscuro */
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
