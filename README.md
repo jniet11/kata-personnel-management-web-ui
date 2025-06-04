@@ -20,6 +20,7 @@ La interfaz interactúa con un backend (presumiblemente en `http://localhost:400
 *   **Estilos**: Tailwind CSS
 *   **Peticiones HTTP**: Axios
 *   **Gestión de Estado**: Hooks de React (`useState`, `useEffect`)
+*   **Autenticación**: JSON Web Tokens (JWT) para la protección de rutas y acciones.
 *   **Routing**: `next/navigation` (`useRouter`, `useParams`)
 
 ## Versiones ℹ️
@@ -32,6 +33,7 @@ El proyecto sigue la estructura del **App Router** de Next.js, donde cada carpet
 
 *   **`app/layout.tsx`**: Define el layout principal de la aplicación.
 *   **`app/page.tsx`**: Podría ser la página de inicio (no provista en el contexto, pero típicamente es la raíz).
+*   **`app/login/page.tsx`**: Página de inicio de sesión para la autenticación de usuarios.
 *   **`app/team-management/page.tsx`**:  Dashboard principal.
     *   Muestra tarjetas para acciones rápidas (Crear Usuario, Solicitar Acceso, Asignar Computador).
     *   Presenta una tabla de "Solicitudes Recientes" que consolida:
@@ -49,36 +51,64 @@ El proyecto sigue la estructura del **App Router** de Next.js, donde cada carpet
     *   `app/edit-computer-assignment/[id]/page.tsx`: Permite editar una asignación de computadora existente. El `[id]` es el ID de la asignación.
 
 **Flujo Típico**:
-1.  El usuario navega a `/team-management`.
-2.  La página carga y muestra las diferentes solicitudes desde el backend.
-3.  El usuario puede hacer clic en "Editar" en una solicitud.
-4.  Se navega a la página de edición correspondiente (ej. `/edit-computer-assignment/123`).
-5.  La página de edición carga los datos de la solicitud específica usando su ID.
-6.  El usuario modifica los datos y envía el formulario.
-7.  La página de edición envía una petición `PUT` al backend para actualizar los datos.
-8.  Tras una actualización exitosa, el usuario es redirigido de vuelta a `/team-management`.
+1.  El usuario navega a la aplicación. Si no está autenticado y intenta acceder a una ruta protegida, es redirigido a `/login`.
+2.  En `/login`, el usuario ingresa sus credenciales.
+3.  Tras una autenticación exitosa contra el backend (endpoint `/login`), se recibe un JWT.
+4.  El JWT se almacena en `localStorage` del navegador.
+5.  El usuario es redirigido a `/team-management`.
+6.  Para todas las operaciones subsecuentes (cargar datos, crear, editar, eliminar), el JWT se adjunta en el encabezado `Authorization: Bearer <token>` de las solicitudes HTTP.
+7.  Si el token es inválido o expira, el backend responderá con un error `401 Unauthorized`. El frontend detecta este error, elimina el token de `localStorage` y redirige al usuario a `/login`.
+8.  Al cargar cualquier página protegida, se verifica la existencia del token en `localStorage`; si no existe, se redirige al login.
 
 ## API Endpoints (Backend) 🌐
 
 La aplicación frontend interactúa con un backend que se espera esté disponible en `http://localhost:4000/personnel-management/`. Los principales endpoints consumidos son:
 
-*   **Usuarios**:
+*   **Autenticación**:
+    *   `POST /login`: Endpoint para autenticar al usuario y obtener un JWT.
+*   **Usuarios (Protegido por JWT)**:
     *   `GET /get-users`: Obtiene la lista de todos los usuarios (usado también para poblar selectores y para editar).
     *   `POST /create-user`: Crea un nuevo usuario.
     *   `PUT /update-user/:id`: Actualiza un usuario existente.
     *   `DELETE /delete-user/:id`: Elimina un usuario (o su solicitud de creación).
-*   **Solicitudes de Acceso**:
+*   **Solicitudes de Acceso (Protegido por JWT)**:
     *   `GET /get-access-requests`: Obtiene todas las solicitudes de acceso.
     *   `GET /get-access-request-by-id/:id`: Obtiene una solicitud de acceso específica.
     *   `POST /create-access-request`: Crea una nueva solicitud de acceso.
     *   `PUT /update-access-request/:id`: Actualiza una solicitud de acceso.
     *   `DELETE /delete-access-request/:id`: Elimina una solicitud de acceso.
-*   **Asignaciones de Computadoras**:
+*   **Asignaciones de Computadoras (Protegido por JWT)**:
     *   `GET /get-assignments`: Obtiene todas las asignaciones de computadoras.
     *   `GET /get-assignment-by-id/:id`: Obtiene una asignación de computadora específica.
     *   `POST /create-assignment`: Crea una nueva asignación de computadora.
     *   `PUT /update-assignment/:id`: Actualiza una asignación de computadora.
     *   `DELETE /delete-assignment/:id`: Elimina una asignación de computadora.
+
+## Implementación de Autenticación por JWT (Frontend)
+
+La autenticación de usuarios se ha implementado utilizando JSON Web Tokens (JWT) para garantizar un acceso seguro a las funcionalidades de la aplicación.
+
+### Flujo Detallado:
+
+1.  **Página de Login (`/login/page.tsx`):**
+    *   Presenta un formulario para que el usuario ingrese su correo electrónico y contraseña.
+    *   Al enviar, `Axios` realiza una solicitud `POST` al endpoint `/login` del backend.
+2.  **Recepción y Almacenamiento del Token:**
+    *   Si la autenticación es exitosa, el backend responde con un JWT.
+    *   Este token se almacena en el `localStorage` del navegador.
+    *   El usuario es redirigido a `/team-management` usando `useRouter` de Next.js.
+3.  **Protección de Rutas y Envío del Token:**
+    *   En cada componente de página protegida (ej. `team-management`, `create-user`, formularios de edición), un `useEffect` verifica al montar si existe un `jwtToken` en `localStorage`. Si no, redirige al usuario a `/login`.
+    *   Para todas las solicitudes `Axios` a endpoints protegidos del backend:
+        *   Se recupera el token de `localStorage`.
+        *   Se incluye en el encabezado `Authorization` de la solicitud HTTP con el esquema `Bearer <token>`.
+4.  **Manejo de Errores de Autenticación:**
+    *   Si una solicitud a un endpoint protegido falla con un estado HTTP `401 Unauthorized` (indicando que el token es inválido, ha expirado, o no se proporcionó correctamente):
+        *   Se muestra una alerta al usuario.
+        *   El token (si existe) se elimina de `localStorage`.
+        *   El usuario es redirigido a la página de `/login`.
+
+Esta estrategia asegura que solo los usuarios autenticados puedan acceder a las funcionalidades de gestión y que las interacciones con el backend estén debidamente autorizadas.
 
 ## Cómo Ejecutar el Proyecto ▶️
 

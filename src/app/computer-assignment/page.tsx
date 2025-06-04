@@ -23,22 +23,45 @@ export default function ComputerAssignment() {
   const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
     const fetchApprovedUsers = async () => {
       setIsLoadingUsers(true);
       setUsersError(null);
+      const currentToken = localStorage.getItem("jwtToken");
+      if (!currentToken) {
+        setUsersError("Sesión expirada. Por favor, inicie sesión de nuevo.");
+        router.push("/login");
+        setIsLoadingUsers(false);
+        return;
+      }
+
       try {
-        const response = await axios.get<ApprovedUser[]>("http://localhost:4000/personnel-management/get-users");
+        const response = await axios.get<ApprovedUser[]>("http://localhost:4000/personnel-management/get-users", {
+          headers: {
+            Authorization: `Bearer ${currentToken}`,
+          },
+        });
         const filteredUsers = response.data.filter(user => user.status.toLowerCase() === "aprobado");
         setApprovedUsers(filteredUsers);
       } catch (error) {
         console.error("Error fetching users:", error);
-        setUsersError("No se pudieron cargar los usuarios. Inténtelo más tarde.");
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          setUsersError("Sesión expirada o no autorizado. Redirigiendo al login.");
+          router.push("/login");
+        } else {
+          setUsersError("No se pudieron cargar los usuarios. Inténtelo más tarde.");
+        }
       } finally {
         setIsLoadingUsers(false);
       }
     };
     fetchApprovedUsers();
-  }, []);
+  }, [router]);
 
   const handleUserChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedUserId(event.target.value);
@@ -75,17 +98,34 @@ export default function ComputerAssignment() {
       payload.assigned_at = assignmentDate;
     }
 
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      setFormError("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+      router.push("/login");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
-      await axios.post("http://localhost:4000/personnel-management/create-assignment", payload);
+      await axios.post("http://localhost:4000/personnel-management/create-assignment", payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       alert("Computador asignado exitosamente!");
       router.push("/team-management");
     } catch (err) {
       console.error("Error al asignar computador:", err);
       let errorMessage = "Error de red o al procesar la solicitud de asignación.";
-      if (axios.isAxiosError(err) && err.response) {
+      if (axios.isAxiosError(err) && err.response?.status === 401) {
+        setFormError("Tu sesión ha expirado o no tienes permiso. Redirigiendo al login.");
+        router.push("/login");
+      } else if (axios.isAxiosError(err) && err.response) {
         errorMessage = err.response.data?.error || err.response.data?.message || "Error desconocido al asignar el computador.";
+        setFormError(errorMessage);
+      } else {
+        setFormError(errorMessage);
       }
-      setFormError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

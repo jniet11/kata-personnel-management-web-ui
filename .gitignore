@@ -3,6 +3,7 @@ node_modules/
 
 # Directorio de salida de TypeScript
 dist/
+.next/
 
 # Archivos de configuración locales
 .env
