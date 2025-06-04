@@ -89,8 +89,8 @@ La aplicación frontend interactúa con un backend que se espera esté disponibl
 
 2.  **Clonar el Repositorio**:
     ```bash
-    git clone <URL_DEL_REPOSITORIO>
-    cd <NOMBRE_DEL_DIRECTORIO_DEL_PROYECTO>
+    git clone git@github.com:jniet11/kata-personnel-management-web-ui.git
+    cd kata-personnel-management-web-ui
     ```
 
 3.  **Instalar Dependencias**:
@@ -113,31 +113,3 @@ La aplicación frontend interactúa con un backend que se espera esté disponibl
 *   **Manejo de Errores**: Se implementa un manejo básico de errores para las llamadas a la API, mostrando mensajes al usuario.
 *   **Carga de Datos**: Se utilizan estados de carga (`isLoading...`) para mejorar la experiencia del usuario mientras se obtienen datos.
 *   **Componentes Reutilizables**: Aunque no se detalla explícitamente, se podrían crear componentes reutilizables para elementos comunes de la UI (botones, inputs, modales, etc.) para mejorar la mantenibilidad.
-
-## Cómo Ejecutar el Proyecto ▶️
-
-1.  **Prerrequisitos**:
-    *   Node.js (se recomienda la última versión LTS).
-    *   npm o yarn.
-    *   Un backend corriendo y accesible en `http://localhost:4000` que exponga los endpoints mencionados.
-
-2.  **Clonar el Repositorio**:
-    ```bash
-    git clone <URL_DEL_REPOSITORIO>
-    cd <NOMBRE_DEL_DIRECTORIO_DEL_PROYECTO>
-    ```
-
-3.  **Instalar Dependencias**:
-    ```bash
-    npm install
-    # o
-    yarn install
-    ```
-
-4.  **Ejecutar el Servidor de Desarrollo**:
-    ```bash
-    npm run dev
-    # o
-    yarn dev
-    ```
-    La aplicación estará disponible en `http://localhost:3000` (o el puerto que Next.js indique).
